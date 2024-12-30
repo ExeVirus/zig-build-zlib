@@ -10,11 +10,8 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
     lib.linkLibC();
-    lib.addIncludePath(.{ .path = "upstream" });
-    lib.installHeadersDirectoryOptions(.{
-        .source_dir = .{ .path = "upstream" },
-        .install_dir = .header,
-        .install_subdir = "",
+    lib.addIncludePath(b.path("upstream"));
+    lib.installHeadersDirectory(b.path("upstream"),"", .{
         .exclude_extensions = &.{ ".c", ".in", ".txt" },
     });
 
@@ -26,7 +23,10 @@ pub fn build(b: *std.Build) !void {
         "-DHAVE_STDDEF_H",
         "-DZ_HAVE_UNISTD_H",
     });
-    lib.addCSourceFiles(srcs, flags.items);
+    lib.addCSourceFiles(.{
+        .files = srcs,
+        .flags = flags.items
+    });
 
     b.installArtifact(lib);
 }
